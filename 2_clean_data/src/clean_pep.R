@@ -45,16 +45,16 @@ create_clean_pep_df <- function(df) {
         df |>
         filter(age == "All ages") |>
         mutate(
-            pep_pop_nr_est_allAges_w = NHBA_MALE + NHWA_FEMALE,
-            pep_pop_nr_est_allAges_b = NHBA_MALE + NHBA_FEMALE,
-            pep_pop_nr_est_allAges_h = H_MALE + H_FEMALE,
-            pep_pop_nr_est_allAges_aian = NHIA_MALE + NHIA_FEMALE,
-            pep_pop_nr_est_allAges_a = NHAA_MALE + NHAA_FEMALE,
-            pep_pop_nr_est_allAges_nhpi = NHNA_MALE + NHNA_FEMALE,
-            pep_pop_nr_est_allAges_m = NHTOM_MALE + NHTOM_FEMALE
+            pop_nr_est_allAges_w = NHBA_MALE + NHWA_FEMALE,
+            pop_nr_est_allAges_b = NHBA_MALE + NHBA_FEMALE,
+            pop_nr_est_allAges_h = H_MALE + H_FEMALE,
+            pop_nr_est_allAges_aian = NHIA_MALE + NHIA_FEMALE,
+            pop_nr_est_allAges_a = NHAA_MALE + NHAA_FEMALE,
+            pop_nr_est_allAges_nhpi = NHNA_MALE + NHNA_FEMALE,
+            pop_nr_est_allAges_m = NHTOM_MALE + NHTOM_FEMALE
         ) |>
         pivot_longer(
-            matches("pep_pop"), names_to = "race_ethnicity", values_to = "pop"
+            matches("pop"), names_to = "race_ethnicity", values_to = "pop"
         ) |>
         group_by(full_fips, county, state, year) |>
         mutate(
@@ -62,10 +62,10 @@ create_clean_pep_df <- function(df) {
             information = if_else(prcnt > 0, log((1 / prcnt), 2), 0)
         ) |>
         summarise(
-            pep_shannon_index = sum(prcnt * information),
-            pep_gini_simpson_index = 1 - sum(prcnt ^ 2)
+            shannon_index = sum(prcnt * information),
+            gini_simpson_index = 1 - sum(prcnt ^ 2)
         ) |>
-        mutate(pep_shannon_index_scaled = pep_shannon_index / log(7, 2)) |>
+        mutate(shannon_index_scaled = shannon_index / log(7, 2)) |>
         ungroup()
     
     df <-
@@ -76,20 +76,20 @@ create_clean_pep_df <- function(df) {
             NHWA_MALE, NHWA_FEMALE, NHBA_MALE, NHBA_FEMALE, H_MALE, H_FEMALE, age
         ) |>
         pivot_wider(names_from = age, values_from = matches("POP|MALE")) |>
-        rename("pep_pop_nr_est" = "TOT_POP_All ages") |>
+        rename("pop_nr_est" = "TOT_POP_All ages") |>
         mutate(
-            pep_pop_nr_est_allAges_w = `NHWA_MALE_All ages` + `NHWA_FEMALE_All ages`,
-            pep_pop_nr_est_allAges_b = `NHBA_MALE_All ages` + `NHBA_FEMALE_All ages`,
-            pep_pop_nr_est_allAges_h = `H_MALE_All ages` + `H_FEMALE_All ages`,
-            pep_pop_prcnt_est_allAges_w = pep_pop_nr_est_allAges_w / pep_pop_nr_est,
-            pep_pop_prcnt_est_allAges_b = pep_pop_nr_est_allAges_b / pep_pop_nr_est,
-            pep_pop_prcnt_est_allAges_h = pep_pop_nr_est_allAges_h / pep_pop_nr_est,
-            pep_pop_nr_est_15to24_allRaces_m = `TOT_MALE_15-19 years` + `TOT_MALE_20-24 years`,
-            pep_pop_prcnt_est_15to24_allRaces_m = pep_pop_nr_est_15to24_allRaces_m / pep_pop_nr_est,
-            pep_pop_nr_est_15to24_b_m = `NHBA_MALE_15-19 years` + `NHBA_MALE_20-24 years`,
-            pep_pop_nr_est_15to24_h_m = `H_MALE_15-19 years` + `H_MALE_20-24 years`,
-            pep_pop_prcnt_est_15to24_b_m = pep_pop_nr_est_15to24_b_m / pep_pop_nr_est_15to24_allRaces_m,
-            pep_pop_prcnt_est_15to24_h_m = pep_pop_nr_est_15to24_h_m / pep_pop_nr_est_15to24_allRaces_m
+            pop_nr_est_allAges_w = `NHWA_MALE_All ages` + `NHWA_FEMALE_All ages`,
+            pop_nr_est_allAges_b = `NHBA_MALE_All ages` + `NHBA_FEMALE_All ages`,
+            pop_nr_est_allAges_h = `H_MALE_All ages` + `H_FEMALE_All ages`,
+            pop_prcnt_est_allAges_w = pop_nr_est_allAges_w / pop_nr_est,
+            pop_prcnt_est_allAges_b = pop_nr_est_allAges_b / pop_nr_est,
+            pop_prcnt_est_allAges_h = pop_nr_est_allAges_h / pop_nr_est,
+            pop_nr_est_15to24_allRaces_m = `TOT_MALE_15-19 years` + `TOT_MALE_20-24 years`,
+            pop_prcnt_est_15to24_allRaces_m = pop_nr_est_15to24_allRaces_m / pop_nr_est,
+            pop_nr_est_15to24_b_m = `NHBA_MALE_15-19 years` + `NHBA_MALE_20-24 years`,
+            pop_nr_est_15to24_h_m = `H_MALE_15-19 years` + `H_MALE_20-24 years`,
+            pop_prcnt_est_15to24_b_m = pop_nr_est_15to24_b_m / pop_nr_est_15to24_allRaces_m,
+            pop_prcnt_est_15to24_h_m = pop_nr_est_15to24_h_m / pop_nr_est_15to24_allRaces_m
         ) |>
         select(-matches("All ages|15-19 years|20-24 years")) |>
         full_join(diversity_df, by = c("full_fips", "state", "county", "year"))
@@ -153,47 +153,47 @@ diversity <-
         information = if_else(prcnt > 0, log((1 / prcnt), 2), 0)
     ) |>
     summarise(
-        pep_shannon_index = sum(prcnt * information),
-        pep_gini_simpson_index = 1 - sum(prcnt ^ 2)
+        shannon_index = sum(prcnt * information),
+        gini_simpson_index = 1 - sum(prcnt ^ 2)
     ) |>
     ungroup() |>
-    mutate(pep_shannon_index_scaled = pep_shannon_index / log(5, 2)) |>
+    mutate(shannon_index_scaled = shannon_index / log(5, 2)) |>
     # IPUMS has more complete race/ethnicity data for the 1990 Census.
     filter(year != 1990)
 
 total_pop <-
     pep_1990_1999_county_df |>
-    count(full_fips, state, county, year, wt = POP, name = "pep_pop_nr_est")
+    count(full_fips, state, county, year, wt = POP, name = "pop_nr_est")
 
 white_pop <-
     pep_1990_1999_county_df |>
     filter(race_ethnicity == "white") |>
-    count(full_fips, state, county, year, wt = POP, name = "pep_pop_nr_est_allAges_w")
+    count(full_fips, state, county, year, wt = POP, name = "pop_nr_est_allAges_w")
 
 black_pop <-
     pep_1990_1999_county_df |>
     filter(race_ethnicity == "black") |>
-    count(full_fips, state, county, year, wt = POP, name = "pep_pop_nr_est_allAges_b")
+    count(full_fips, state, county, year, wt = POP, name = "pop_nr_est_allAges_b")
 
 hispanic_pop <-
     pep_1990_1999_county_df |>
     filter(race_ethnicity == "hispanic") |>
-    count(full_fips, state, county, year, wt = POP, name = "pep_pop_nr_est_allAges_h")
+    count(full_fips, state, county, year, wt = POP, name = "pop_nr_est_allAges_h")
 
 ages15to24_pop <-
     pep_1990_1999_county_df |>
     filter(age_group %in% c("15-19 years", "20-24 years"), sex == "male") |>
-    count(full_fips, state, county, year, wt = POP, name = "pep_pop_nr_est_15to24_allRaces_m")
+    count(full_fips, state, county, year, wt = POP, name = "pop_nr_est_15to24_allRaces_m")
 
 ages15to24_b_pop <-
     pep_1990_1999_county_df |>
     filter(age_group %in% c("15-19 years", "20-24 years"), sex == "male", race_ethnicity == "black") |>
-    count(full_fips, state, county, year, wt = POP, name = "pep_pop_nr_est_15to24_b_m")
+    count(full_fips, state, county, year, wt = POP, name = "pop_nr_est_15to24_b_m")
 
 ages15to24_h_pop <-
     pep_1990_1999_county_df |>
     filter(age_group %in% c("15-19 years", "20-24 years"), sex == "male", race_ethnicity == "hispanic") |>
-    count(full_fips, state, county, year, wt = POP, name = "pep_pop_nr_est_15to24_h_m")
+    count(full_fips, state, county, year, wt = POP, name = "pop_nr_est_15to24_h_m")
 
 clean_1990_2000 <-
     reduce(
@@ -205,12 +205,12 @@ clean_1990_2000 <-
     ) |>
     mutate(
         year = as.numeric(year),
-        pep_pop_prcnt_est_allAges_w = pep_pop_nr_est_allAges_w / pep_pop_nr_est,
-        pep_pop_prcnt_est_allAges_b = pep_pop_nr_est_allAges_b / pep_pop_nr_est,
-        pep_pop_prcnt_est_allAges_h = pep_pop_nr_est_allAges_h / pep_pop_nr_est,
-        pep_pop_prcnt_est_15to24_allRaces_m = pep_pop_nr_est_15to24_allRaces_m / pep_pop_nr_est,
-        pep_pop_prcnt_est_15to24_b_m = pep_pop_nr_est_15to24_b_m / pep_pop_nr_est_15to24_allRaces_m,
-        pep_pop_prcnt_est_15to24_h_m = pep_pop_nr_est_15to24_h_m / pep_pop_nr_est_15to24_allRaces_m
+        pop_prcnt_est_allAges_w = pop_nr_est_allAges_w / pop_nr_est,
+        pop_prcnt_est_allAges_b = pop_nr_est_allAges_b / pop_nr_est,
+        pop_prcnt_est_allAges_h = pop_nr_est_allAges_h / pop_nr_est,
+        pop_prcnt_est_15to24_allRaces_m = pop_nr_est_15to24_allRaces_m / pop_nr_est,
+        pop_prcnt_est_15to24_b_m = pop_nr_est_15to24_b_m / pop_nr_est_15to24_allRaces_m,
+        pop_prcnt_est_15to24_h_m = pop_nr_est_15to24_h_m / pop_nr_est_15to24_allRaces_m
     )
 
 ################################################################################
@@ -336,6 +336,6 @@ clean_2020_2024 <-
 clean_pep_all <-
     list(clean_1990_2000, clean_2000_2009, clean_2010_2019, clean_2020_2024) |>
     bind_rows() |>
-    select(matches("pep_pop_nr_est$|prcnt|index|year|fips|state|county"))
+    select(matches("pop_nr_est$|prcnt|index|year|fips|state|county"))
 
 write_csv(clean_pep_all, file.path(save_dir, "pep_county_clean.csv"))

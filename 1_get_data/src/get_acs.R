@@ -150,6 +150,14 @@ income_var_labels <-
         "hispHH_Snap" = "B22005I_002"
     )
 
+hh_costs_var_labels_2019_2014 =
+    c("house_value_owner_occupied_above1000" = "B25075_025")
+hh_costs_var_labels_2015_2023 =
+    c(
+        "house_value_owner_occupied_1000to1500" = "B25075_025",
+        "house_value_owner_occupied_1500to2000" = "B25075_026",
+        "house_value_owner_occupied_above2000" = "B25075_027"
+    )
 hh_costs_var_labels <-
     c(
         "rent_prcnt_of_income_lessThan10" = "B25070_002",
@@ -249,9 +257,6 @@ hh_costs_var_labels <-
         "house_value_owner_occupied_400to500" = "B25075_022",
         "house_value_owner_occupied_500to750" = "B25075_023",
         "house_value_owner_occupied_750to1000" = "B25075_024",
-        "house_value_owner_occupied_1000to1500" = "B25075_025",
-        "house_value_owner_occupied_1500to2000" = "B25075_026",
-        "house_value_owner_occupied_above2000" = "B25075_027",
         "house_value_owner_occupied_25thPtile" = "B25076_001",
         "house_value_owner_occupied_75thPtile" = "B25078_001",
         "house_value_owner_occupied_median" = "B25077_001",
@@ -461,8 +466,8 @@ turn_label_into_var <- function(vector_of_labels, years) {
 years_acs <- 
     list(
         2009:2023, 2009:2018, 2019:2023, 2009:2012, 2013:2023, 2009:2023,
-        2009:2023, 2009:2023, 2009:2023, 2009:2023, 2009:2023, 2009:2023,
-        2009:2023, 2009:2023
+        2009:2023, 2009:2023, 2009:2014, 2015:2023, 2009:2023, 2009:2023,
+        2009:2023, 2009:2023, 2009:2023, 2009:2023
     )
 
 acs_vars <-
@@ -476,6 +481,8 @@ acs_vars <-
                 "children_poverty_2013_2023" = children_poverty_var_labels_2013_2023,
                 "edu" = edu_var_labels, "fertility" = fertility_var_labels,
                 "health_insurance" = health_insurace_var_labels,
+                "hh_costs_2009_2014" = hh_costs_var_labels_2019_2014,
+                "hh_costs_2015_2023" = hh_costs_var_labels_2015_2023,
                 "hh_costs" = hh_costs_var_labels, "income" = income_var_labels,
                 "labor" = labor_var_labels, "marriage" = marriage_var_labels,
                 "poverty" = poverty_var_labels, "residence" = residence_var_labels

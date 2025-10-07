@@ -26,14 +26,14 @@ vera_data_clean <-
     # Hand-calculated values do not always match officially reported values.
     ungroup() |>
     mutate(
-        total_prison_pop_rate_self = total_prison_pop / total_pop_15to64,
-        white_prison_pop_rate_self = white_prison_pop / white_pop_15to64,
-        black_prison_pop_rate_self = black_prison_pop / black_pop_15to64,
-        latinx_prison_pop_rate_self = latinx_prison_pop / latinx_pop_15to64,
-        total_prison_adm_rate_self = total_prison_adm / total_pop_15to64,
-        white_prison_adm_rate_self = white_prison_adm / white_pop_15to64,
-        black_prison_adm_rate_self = black_prison_adm / black_pop_15to64,
-        latinx_prison_adm_rate_self = latinx_prison_adm / latinx_pop_15to64,
+        total_prison_pop_rate_self = total_prison_pop / total_pop_15to64 * 100000,
+        white_prison_pop_rate_self = white_prison_pop / white_pop_15to64 * 100000,
+        black_prison_pop_rate_self = black_prison_pop / black_pop_15to64 * 100000,
+        latinx_prison_pop_rate_self = latinx_prison_pop / latinx_pop_15to64 * 100000,
+        total_prison_adm_rate_self = total_prison_adm / total_pop_15to64 * 100000,
+        white_prison_adm_rate_self = white_prison_adm / white_pop_15to64 * 100000,
+        black_prison_adm_rate_self = black_prison_adm / black_pop_15to64 * 100000,
+        latinx_prison_adm_rate_self = latinx_prison_adm / latinx_pop_15to64 * 100000,
         state = str_sub(fips, 1, 2),
         county = str_sub(fips, 3, 5)
     ) |>

@@ -91,51 +91,6 @@ rename_paoc_cols <- function(col) {
     return(paste0(subject, year))
 }
 
-rename_hhsize_cols <- function(col) {
-    subject <-
-        case_when(
-            col == "STATEFP" ~ "state",
-            col == "COUNTYFP" ~ "county",
-            str_detect(col, "M") ~ col,
-            str_detect(col, "AA") ~ "family2",
-            str_detect(col, "AB") ~ "family3",
-            str_detect(col, "AC") ~ "family4",
-            str_detect(col, "AD") ~ "family5",
-            str_detect(col, "AE") ~ "family6",
-            str_detect(col, "AF") ~ "family7plus",
-            str_detect(col, "AG") ~ "nonfamily1",
-            str_detect(col, "AH") ~ "nonfamily2",
-            str_detect(col, "AI") ~ "nonfamily3",
-            str_detect(col, "AJ") ~ "nonfamily4",
-            str_detect(col, "AK") ~ "nonfamily5",
-            str_detect(col, "AL") ~ "nonfamily6",
-            str_detect(col, "AM") ~ "nonfamily7plus",
-            T ~ col
-        )
-    
-    year <- rename_year(col)
-    return(paste0(subject, year))
-}
-
-rename_hhtype_cols <- function(col) {
-    subject <-
-        case_when(
-            col == "STATEFP" ~ "state",
-            col == "COUNTYFP" ~ "county",
-            str_detect(col, "M") ~ col,
-            str_detect(col, "AA") ~ "family",
-            str_detect(col, "AB") ~ "husbandAndWife",
-            str_detect(col, "AC") ~ "otherFamily",
-            str_detect(col, "AD") ~ "malehh",
-            str_detect(col, "AE") ~ "femalehh",
-            str_detect(col, "AF") ~ "nonfamily",
-            T ~ col
-        )
-    
-    year <- rename_year(col)
-    return(paste0(subject, year))
-}
-
 rename_labor_cols <- function(col) {
     subject <-
         case_when(
@@ -477,14 +432,14 @@ education_1990 <-
         year = "1990",
         full_fips = paste0(STATEFP, COUNTYFP),
         total = B85AA1990 + B85AB1990 + B85AC1990 + B85AD1990 + B85AE1990 + B85AF1990 + B85AG1990,
-        ipumsts_lessThanHs_nr_est_25older = B85AA1990 + B85AB1990,
-        ipumsts_hs_nr_est_25older = B85AC1990,
-        ipumsts_someCollege_nr_est_25older = B85AD1990 + B85AE1990,
-        ipumsts_college_nr_est_25older = B85AF1990 + B85AG1990,
-        ipumsts_lessThanHs_prcnt_est_25older = ipumsts_lessThanHs_nr_est_25older / total,
-        ipumsts_hs_prcnt_est_25older = ipumsts_hs_nr_est_25older / total,
-        ipumsts_someCollege_prcnt_est_25older = ipumsts_someCollege_nr_est_25older / total,
-        ipumsts_college_prcnt_est_25older = ipumsts_college_nr_est_25older / total
+        lessThanHs_nr_est_25older = B85AA1990 + B85AB1990,
+        hs_nr_est_25older = B85AC1990,
+        someCollege_nr_est_25older = B85AD1990 + B85AE1990,
+        college_nr_est_25older = B85AF1990 + B85AG1990,
+        lessThanHs_prcnt_est_25older = lessThanHs_nr_est_25older / total,
+        hs_prcnt_est_25older = hs_nr_est_25older / total,
+        someCollege_prcnt_est_25older = someCollege_nr_est_25older / total,
+        college_prcnt_est_25older = college_nr_est_25older / total
     ) |>
     rename(state = STATEFP, county = COUNTYFP) |>
     select(matches("prcnt|^state$|^county$|year|_fips"), -STATE, -COUNTY) |>
@@ -496,12 +451,12 @@ ipums_education <-
     pivot_ipums("9th|12th|hs_|college") |>
     mutate(
         total = lessThan9th + lessThan12th + hs + someCollege + college,
-        ipumsts_lessThanHs_prcnt_est_25older = (lessThan9th + lessThan12th) / total,
-        ipumsts_hs_prcnt_est_25older = hs / total,
-        ipumsts_someCollege_prcnt_est_25older = someCollege / total,
-        ipumsts_college_prcnt_est_25older = college / total
+        lessThanHs_prcnt_est_25older = (lessThan9th + lessThan12th) / total,
+        hs_prcnt_est_25older = hs / total,
+        someCollege_prcnt_est_25older = someCollege / total,
+        college_prcnt_est_25older = college / total
     ) |>
-    select(matches("fips|year|state|county|ipumsts")) |>
+    select(matches("fips|year|state|county|prcnt_est")) |>
     bind_rows(education_1990)
 
 ################################################################################
@@ -522,9 +477,9 @@ ipums_labor <-
     pivot_ipums("16andOlder") |>
     mutate(
         civilian_noninst_pop = civilian16andOlder + notInLaborForce16andOlder,
-        ipumsts_lfpr_prcnt_est_16andOlder = civilian16andOlder / civilian_noninst_pop,
-        ipumsts_epr_prcnt_est_16andOlder = employed16andOlder / civilian_noninst_pop,
-        ipumsts_ur_prcnt_est_16andOlder = unemployed16andOlder / civilian16andOlder
+        lfpr_prcnt_est_16andOlder = civilian16andOlder / civilian_noninst_pop,
+        epr_prcnt_est_16andOlder = employed16andOlder / civilian_noninst_pop,
+        ur_prcnt_est_16andOlder = unemployed16andOlder / civilian16andOlder
     ) |>
     select(matches("year|fips|state|county|prcnt"))
 
@@ -540,7 +495,7 @@ ipums_marriage <-
             maleWidowed15andOlder + maleDivorced15andOlder +
             femaleNeverMarried15andOlder + femaleMarried15andOlder +
             femaleWidowed15andOlder + femaleDivorced15andOlder,
-        ipumsts_marriageNotSeparated_prcnt_est_15andOlder =
+        marriageNotSeparated_prcnt_est_15andOlder =
             (maleMarriedNotSeparated15andOlder + femaleMarriedNotSeparated15andOlder) /
             total_pop_15andOlder
     ) |>
@@ -552,7 +507,7 @@ ipums_medianHhIncome <-
     ipums_data$median_hh_income |>
     rename_with(rename_medianHhIncome_cols) |>
     pivot_ipums("median") |>
-    rename(ipumsts_HhIncome_median_est = medianHHIncome)
+    rename(HhIncome_median_est = medianHHIncome)
 
 ################################################################################
 # Clean/restructure IPUMS data (occupancy).
@@ -561,10 +516,12 @@ ipums_occupancy <-
     rename_with(rename_occupancy_cols) |>
     pivot_ipums("Housing") |>
     mutate(
-        ipumsts_vacantHousingUnits_prcnt_est =
+        vacantHousingUnits_prcnt_est =
             nrVacantHousingUnits / (nrVacantHousingUnits + nrOccupiedHousingUnits)
     ) |>
-    select(matches("year|fips|state|county|prcnt"))
+    select(matches("year|fips|state|county|prcnt|nrOccupied")) |>
+    # Data was collected in the 2010, 2020 Census and is preferred over the ACS.
+    filter((!year %in% c("2006-2010", "2016-2020")))
 
 ################################################################################
 # Clean/restructure IPUMS data (owner/renter).
@@ -573,10 +530,12 @@ ipums_owner_renter <-
     rename_with(rename_owner_renter_cols) |>
     pivot_ipums("Units") |>
     mutate(
-        ipumsts_liveInRental_prcnt_est_allAges =
+        liveInRental_prcnt_est_allAges =
             nrPeopleInRentedUnits / (nrPeopleInRentedUnits + nrPeopleInOwnedUnits)
     ) |>
-    select(matches("year|fips|state|county|prcnt"))
+    select(matches("year|fips|state|county|prcnt")) |>
+    # Data was collected in the 2010 Census and is preferred over the ACS.
+    filter(year != "2006-2010")
 
 ################################################################################
 # Clean/restructure IPUMS data (poverty).
@@ -588,21 +547,21 @@ ipums_poverty <-
         total =
             ratioBelow75 + ratio75to99 + ratio100to124 + ratio125to149 +
             ratio150to174 + ratio175to199 + ratioAbove200,
-        ipumsts_ratioIncomeToPovertyBelow75_prcnt_est_povertyUniverse =
+        ratioIncomeToPovertyBelow75_prcnt_est_povertyUniverse =
             ratioBelow75 / total,
-        ipumsts_ratioIncomeToPoverty75to99_prcnt_est_povertyUniverse =
+        ratioIncomeToPoverty75to99_prcnt_est_povertyUniverse =
             ratio75to99 / total,
-        ipumsts_belowPoverty_prcnt_est_povertyUniverse =
+        belowPoverty_prcnt_est_povertyUniverse =
             (ratioBelow75 + ratio75to99) / total,
-        ipumsts_ratioIncomeToPoverty100to124_prcnt_est_povertyUniverse =
+        ratioIncomeToPoverty100to124_prcnt_est_povertyUniverse =
             ratio100to124 / total,
-        ipumsts_ratioIncomeToPoverty125to149_prcnt_est_povertyUniverse =
+        ratioIncomeToPoverty125to149_prcnt_est_povertyUniverse =
             ratio125to149 / total,
-        ipumsts_ratioIncomeToPoverty150to174_prcnt_est_povertyUniverse =
+        ratioIncomeToPoverty150to174_prcnt_est_povertyUniverse =
             ratio150to174 / total,
-        ipumsts_ratioIncomeToPoverty175to199_prcnt_est_povertyUniverse =
+        ratioIncomeToPoverty175to199_prcnt_est_povertyUniverse =
             ratio175to199 / total,
-        ipumsts_ratioIncomeToPovertyAbove200_prcnt_est_povertyUniverse =
+        ratioIncomeToPovertyAbove200_prcnt_est_povertyUniverse =
             ratioAbove200 / total,
     ) |>
     select(matches("year|fips|state|county|prcnt"))
@@ -632,10 +591,10 @@ diversity <-
         information = if_else(prcnt > 0, log((1 / prcnt), 2), 0)
     ) |>
     summarise(
-        ipumsts_shannon_index = sum(prcnt * information),
-        ipumsts_gini_simpson_index = 1 - sum(prcnt ^ 2)
+        shannon_index = sum(prcnt * information),
+        gini_simpson_index = 1 - sum(prcnt ^ 2)
     ) |>
-    mutate(ipumsts_shannon_index_scaled = ipumsts_shannon_index / log(6, 2)) |>
+    mutate(shannon_index_scaled = shannon_index / log(6, 2)) |>
     ungroup()
     
 ipums_race <-
@@ -644,9 +603,9 @@ ipums_race <-
     mutate(
         hispanic = whiteHisp + blackHisp + aianHisp + asianAndPiHisp + otherHisp,
         total = whiteNh + blackNh + aianNh + asianAndPiNh + otherNh + hispanic,
-        ipumsts_white_prcnt_est_allAges = whiteNh / total,
-        ipumsts_black_prcnt_est_allAges = blackNh / total,
-        ipumsts_hispanic_prcnt_est_allAges = hispanic / total
+        white_prcnt_est_allAges = whiteNh / total,
+        black_prcnt_est_allAges = blackNh / total,
+        hispanic_prcnt_est_allAges = hispanic / total
     ) |>
     select(matches("year|fips|state|county|prcnt")) |>
     full_join(diversity, by = c("year", "full_fips", "state", "county"))
@@ -658,7 +617,7 @@ ipums_sex_age <-
     rename_with(rename_sex_age_cols) |>
     pivot_ipums("male") |>
     mutate(
-        total =
+        pop_nr_est =
             maleUnder5 + male5to9 + male10to14 + male15to17 + male18to19 +
             male20 + male21 + male22to24 + male25to29 + male30to34 +
             male35to44 + male45to54 + male55to59 + male60to61 + male62to64 +
@@ -667,10 +626,10 @@ ipums_sex_age <-
             female22to24 + female25to29 + female30to34 + female35to44 +
             female45to54 + female55to59 + female60to61 + female62to64 +
             female65to74 + female75to84 + femaleAbove85,
-        ipumsts_pop_prcnt_est_15to24_allRaces_m =
-            (male15to17 + male18to19 + male20 + male21 + male22to24) / total
+        pop_prcnt_est_15to24_allRaces_m =
+            (male15to17 + male18to19 + male20 + male21 + male22to24) / pop_nr_est
     ) |>
-    select(matches("year|fips|state|county|prcnt"))
+    select(matches("year|fips|state|county|prcnt|pop_nr_est"))
 
 ################################################################################
 # Clean/restructure IPUMS data (own vs. rent by race/ethnicity).
@@ -699,23 +658,23 @@ ipums_owner_renter_race <-
     mutate(
         white_total = whiteNhHhOwner + whiteNhHhRenter,
         black_total = blackNhHhOwner + blackNhHhRenter,
-        ipumsts_whiteHhRenter_prcnt_est = 
+        renters_prcnt_est_allAges_w = 
             if_else(white_total == 0, 0, whiteNhHhRenter / white_total),
-        ipumsts_blackHhRenter_prcnt_est =
+        renters_prcnt_est_allAges_b =
             if_else(black_total == 0, 0, blackNhHhRenter / black_total),
-        ipumsts_hispHhRenter_prcnt_est =
+        renters_prcnt_est_allAges_h =
             if_else(hisp_total == 0, 0, hisp_renter_total / hisp_total),
-        ipumsts_blackToWhiteHhRenter_ratio_est =
+        blackToWhiteRenters_ratio_est =
             if_else(
-                ipumsts_whiteHhRenter_prcnt_est == 0,
+                renters_prcnt_est_allAges_w == 0,
                 0,
-                ipumsts_blackHhRenter_prcnt_est / ipumsts_whiteHhRenter_prcnt_est
+                renters_prcnt_est_allAges_b / renters_prcnt_est_allAges_w
             ),
-        ipumsts_hispToWhiteHhRenter_ratio_est =
+        hispToWhiteRenters_ratio_est =
             if_else(
-                ipumsts_whiteHhRenter_prcnt_est == 0,
+                renters_prcnt_est_allAges_w == 0,
                 0,
-                ipumsts_hispHhRenter_prcnt_est / ipumsts_whiteHhRenter_prcnt_est
+                renters_prcnt_est_allAges_h / renters_prcnt_est_allAges_w
             )
     ) |>
     select(matches("year|fips|state|county|prcnt|ratio"))
@@ -733,14 +692,10 @@ hh_income_1980 <-
         across(
             matches("from|above|below"),
             function(col) {col / total},
-            .names = "ipumsts_hhIncome{.col}_prcnt_est"
+            .names = "hhIncome{.col}_prcnt_est"
         )
     ) |>
-    select(-total) |>
-    rename_with(
-        .fn = function(col) {paste0("ipumsts_hhIncome", col, "_nr_est")},
-        .cols = matches("from|above|below")
-    )
+    select(-total, -matches("^from|^above|^below"))
 
 ################################################################################
 # Clean/restructure IPUMS data (income categories from 1990 and on).
@@ -761,14 +716,10 @@ ipums_hh_income <-
         across(
             matches("from|above|below"),
             function(col) {col / total},
-            .names = "ipumsts_hhIncome{.col}_prcnt_est"
+            .names = "hhIncome{.col}_prcnt_est"
         )
     ) |>
-    select(-total) |>
-    rename_with(
-        .fn = function(col) {paste0("ipumsts_hhIncome", col, "_nr_est")},
-        .cols = matches("from|above|below")
-    ) |>
+    select(-total, -matches("^from|^above|^below")) |>
     bind_rows(hh_income_1980)
 
 ################################################################################
@@ -780,19 +731,19 @@ ipums_labor_sex <-
     mutate(
         male_civilian_noninst_pop =
             maleCivilian16andOlder + maleNotInLaborForce16andOlder,
-        ipumsts_lfpr_prcnt_est_16andOlder_allRaces_m =
+        lfpr_prcnt_est_16andOlder_allRaces_m =
             maleCivilian16andOlder / male_civilian_noninst_pop,
-        ipumsts_epr_prcnt_est_16andOlder_allRaces_m =
+        epr_prcnt_est_16andOlder_allRaces_m =
             maleEmployed16andOlder / male_civilian_noninst_pop,
-        ipumsts_ur_prcnt_est_16andOlder_allRaces_m =
+        ur_prcnt_est_16andOlder_allRaces_m =
             maleUnemployed16andOlder / (maleEmployed16andOlder + maleUnemployed16andOlder),
         female_civilian_noninst_pop =
             femaleCivilian16andOlder + femaleNotInLaborForce16andOlder,
-        ipumsts_lfpr_prcnt_est_16andOlder_allRaces_f =
+        lfpr_prcnt_est_16andOlder_allRaces_f =
             femaleCivilian16andOlder / female_civilian_noninst_pop,
-        ipumsts_epr_prcnt_est_16andOlder_allRaces_f =
+        epr_prcnt_est_16andOlder_allRaces_f =
             femaleEmployed16andOlder / female_civilian_noninst_pop,
-        ipumsts_ur_prcnt_est_16andOlder_allRaces_f =
+        ur_prcnt_est_16andOlder_allRaces_f =
             femaleUnemployed16andOlder / (femaleEmployed16andOlder + femaleUnemployed16andOlder),
     ) |>
     select(matches("year|fips|state|county|prcnt"))
@@ -804,7 +755,7 @@ ipums_poverty_children <-
     rename_with(rename_poverty_children_cols) |>
     pivot_ipums("Poverty") |>
     mutate(
-        ipumsts_belowPoverty_prcnt_est_under18 =
+        belowPoverty_prcnt_est_under18 =
             inPovertyUnder18 / (inPovertyUnder18 + abovePovertyUnder18)
     ) |>
     select(matches("year|fips|state|county|prcnt"))
@@ -820,9 +771,37 @@ ipums_county_clean <-
     ) |>
     reduce(
         function(x, y) {
+            x <-
+                x |>
+                mutate(
+                    year =
+                        if_else(
+                            str_length(year) == 4,
+                            year,
+                            str_extract(year, "[0-9]{4}$")
+                        )
+                )
+            
+            y <-
+                y |>
+                mutate(
+                    year =
+                        if_else(
+                            str_length(year) == 4,
+                            year,
+                            str_extract(year, "[0-9]{4}$")
+                        )
+                )
+            
             full_join(x, y, by = c("year", "full_fips", "state", "county"))
         }
-    )
+    ) |>
+    mutate(
+        singleMom_prcnt_est = femalehhChildren / nrOccupiedHousingUnits,
+        singleDad_prcnt_est = malehhChildren / nrOccupiedHousingUnits,
+        singleParent_prcnt_est = singleParenthhChildren / nrOccupiedHousingUnits
+    ) |>
+    select(-nrOccupiedHousingUnits, -singleParenthhChildren, -matches("hhChildren"))
 
 write_csv(
     ipums_county_clean,

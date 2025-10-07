@@ -13,11 +13,11 @@ sahie_county <- read_csv(file.path(read_dir, "sahie_county.csv"))
 # Variable names and labels.
 var_labels <-
     c(
-        sahie_uninsured_nr_est = "NUI_PT",
-        sahie_uninsured_nr_moe = "NUI_MOE",
-        sahie_uninsured_prcnt_est = "PCTUI_PT",
-        sahie_uninsured_prcnt_moe = "PCTUI_MOE",
-        sahie_uninsured_nr_denom = "NIPR_PT"
+        uninsured_nr_est = "NUI_PT",
+        uninsured_nr_moe = "NUI_MOE",
+        uninsured_prcnt_est = "PCTUI_PT",
+        uninsured_prcnt_moe = "PCTUI_MOE",
+        uninsured_nr_denom = "NIPR_PT"
     )
 
 # Restructure data for analysis.
@@ -29,8 +29,8 @@ sahie_county_clean <-
         values_from = PCTUI_PT
     ) |>
     rename(
-        "sahie_uninsured_prcnt_est_0to19" = "Under 19 years",
-        "sahie_uninsured_prcnt_est_under65" = "Under 65 years"
+        "uninsured_prcnt_est_0to19" = "Under 19 years",
+        "uninsured_prcnt_est_under65" = "Under 65 years"
     )
 
 # Save cleaned data.
