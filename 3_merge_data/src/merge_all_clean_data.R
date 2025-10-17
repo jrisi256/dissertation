@@ -19,6 +19,7 @@ saipe <- read_csv(file.path(read_dir, "saipe_county_clean.csv"))
 vera <-
     read_csv(file.path(read_dir, "vera_county_clean.csv")) |>
     select(matches("year|full_fips|state|county|total_prison.*rate"))
+cdc_homicides <- read_csv(file.path(read_dir, "cdc_county_homicides_clean.csv"))
 
 ################################################################################
 # Drop any columns which need to be merged across different data sources.
@@ -194,7 +195,7 @@ df_final <-
         -singleDad_prcnt_est, -hhIncomeabove75_prcnt_est,
         -hhIncomeAbove75_prcnt_est_allAges_b,
         -hhIncomeAbove75_prcnt_est_allAges_w,
-        -hhIncomeAbove75_prcnt_est_allAges_h
+        -hhIncomeAbove75_prcnt_est_allAges_h, -matches(".*_w")
     )
 
 write_csv(df_final, here("3_merge_data", "output", "merged_data.csv"))

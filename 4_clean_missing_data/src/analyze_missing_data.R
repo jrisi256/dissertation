@@ -70,7 +70,7 @@ data_no_missing <-
         !is.na(total_prison_adm_rate_self),
         !is.na(total_prison_pop_rate_self),
         !is.na(nr_socialAssociations_per10k),
-        !is.na(nrBirthsPer10000Unmarried_rate_est_ages15to50_w_f),
+        #!is.na(nrBirthsPer10000Unmarried_rate_est_ages15to50_w_f),
         !is.na(yearMoved_median_est),
         !is.na(hhNoPhone_prcnt_est),
         !is.na(hhShareOfIncome_1stQuintile_est),
